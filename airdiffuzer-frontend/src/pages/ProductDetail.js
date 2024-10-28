@@ -1,11 +1,22 @@
 import React from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 // Импортиране на изображението
 import AromaDiffuserImage from '../assets/1718432686293-e450d807b038497aa468be57c503904d-goods.webp';
 // Импортиране на CSS за стилизиране
 import './ProductDetail.css';
 
 function ProductDetail() {
+  const navigate = useNavigate(); // Initialize navigate hook
+
+  // Function to handle adding the product to the cart
+  const handleAddToCart = () => {
+    // Here you could add the logic for adding the item to the cart (e.g., update state or call a service)
+    
+    // Navigate to the cart page
+    navigate('/cart');
+  };
+
   return (
     <Container className="mt-5 product-detail-container">
       <Row>
@@ -39,7 +50,9 @@ function ProductDetail() {
           <div className="price-section">
             <span className="original-price">59.99 лв</span> <span className="discount-price">39.99 лв</span>
           </div>
-          <Button className="btn-pulse mt-3" variant="primary">Добави в кошницата</Button>
+          <Button className="btn-pulse mt-3" variant="primary" onClick={handleAddToCart}>
+            Добави в кошницата
+          </Button>
 
           {/* Отзиви на клиенти */}
           <div className="customer-reviews mt-4">

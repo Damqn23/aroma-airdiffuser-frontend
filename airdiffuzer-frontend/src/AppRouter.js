@@ -20,7 +20,8 @@ function AppRouter() {
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/order-confirmation" element={<OrderConfirmation />} />
-          <Route path="/product-detail" element={<ProductDetail />} /> {/* Product Detail Page */}
+          <Route path="/product-detail" element={<ProductDetail />} />
+          <Route path="*" element={<div>Page Not Found</div>} />
         </Routes>
       </Router>
     </ThemeProvider>

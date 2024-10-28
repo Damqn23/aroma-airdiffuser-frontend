@@ -1,0 +1,163 @@
+/* General styles for the moving circles */
+.moving-circle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.7;
+    z-index: -1; /* Keep it behind content */
+  }
+  
+  /* Circle variations for size and colors */
+  .circle-1 {
+    width: 100px;
+    height: 100px;
+    background-color: rgba(0, 183, 255, 0.3);
+    animation: moveCircle1 15s linear infinite;
+  }
+  
+  .circle-2 {
+    width: 150px;
+    height: 150px;
+    background-color: rgba(0, 128, 128, 0.3);
+    animation: moveCircle2 20s linear infinite;
+  }
+  
+  .circle-3 {
+    width: 80px;
+    height: 80px;
+    background-color: rgba(0, 200, 150, 0.3);
+    animation: moveCircle3 25s linear infinite;
+  }
+  
+  /* Animations for the circles to move around */
+  @keyframes moveCircle1 {
+    0% {
+      top: 10%;
+      left: 15%;
+    }
+    25% {
+      top: 30%;
+      left: 50%;
+    }
+    50% {
+      top: 60%;
+      left: 70%;
+    }
+    75% {
+      top: 40%;
+      left: 30%;
+    }
+    100% {
+      top: 10%;
+      left: 15%;
+    }
+  }
+  
+  @keyframes moveCircle2 {
+    0% {
+      top: 60%;
+      left: 10%;
+    }
+    25% {
+      top: 20%;
+      left: 30%;
+    }
+    50% {
+      top: 50%;
+      left: 70%;
+    }
+    75% {
+      top: 80%;
+      left: 50%;
+    }
+    100% {
+      top: 60%;
+      left: 10%;
+    }
+  }
+  
+  @keyframes moveCircle3 {
+    0% {
+      top: 20%;
+      left: 70%;
+    }
+    25% {
+      top: 50%;
+      left: 60%;
+    }
+    50% {
+      top: 70%;
+      left: 20%;
+    }
+    75% {
+      top: 30%;
+      left: 40%;
+    }
+    100% {
+      top: 20%;
+      left: 70%;
+    }
+  }
+  
+  
+
+  .card-hover {
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .card-hover:hover {
+    transform: translateY(-10px);
+  }
+  
+  /* Center the main heading and subheading, add padding */
+.main-heading {
+    text-align: center;
+    font-size: 2.5rem;
+    color: #004d99; /* Deep blue to create a calm feel */
+    margin-bottom: 0.5rem;
+  }
+  
+  .sub-heading {
+    text-align: center;
+    font-size: 1.5rem;
+    color: #007b83; /* Calming teal color */
+    margin-bottom: 2rem;
+    font-weight: 400;
+  }
+  
+  /* Styling for the moving circle elements */
+  .moving-circle {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.7;
+    z-index: -1; /* Keep it behind content */
+  }
+  
+  .sale-sticker {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: red;
+    color: white;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 5px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    transform: rotate(-10deg);
+  }
+  
+  /* Price Section Styling */
+  .price-section {
+    margin-top: 10px;
+    font-size: 1.2rem;
+  }
+  
+  .original-price {
+    text-decoration: line-through;
+    color: #888;
+    margin-right: 10px;
+  }
+  
+  .discount-price {
+    color: #e53935; /* Red color to highlight the sale price */
+    font-weight: bold;
+  }

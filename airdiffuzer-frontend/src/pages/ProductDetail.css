@@ -1,0 +1,75 @@
+.product-detail-container {
+    padding: 20px;
+  }
+  
+  .media-section {
+    text-align: center;
+  }
+  
+  .product-image {
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .product-video {
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .product-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  /* Feature List */
+  .feature-list {
+    margin-top: 20px;
+    padding-left: 20px;
+    list-style-type: disc;
+    font-size: 1.1rem;
+    color: #444;
+  }
+  
+  /* Price Section */
+  .price-section {
+    margin-top: 20px;
+    font-size: 1.5rem;
+  }
+  
+  .original-price {
+    text-decoration: line-through;
+    color: #888;
+    margin-right: 10px;
+  }
+  
+  .discount-price {
+    color: #e53935; /* Red color to highlight the sale price */
+    font-weight: bold;
+  }
+  
+  /* Customer Reviews */
+  .customer-reviews {
+    margin-top: 30px;
+  }
+  
+  .customer-reviews h4 {
+    font-size: 1.5rem;
+    color: #004d99;
+  }
+  
+  .review {
+    background-color: #f7f7f7;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    margin-top: 10px;
+  }
+  
+  .review-rating {
+    color: #ffcc00; /* Star color for reviews */
+    margin-left: 10px;
+  }
+  

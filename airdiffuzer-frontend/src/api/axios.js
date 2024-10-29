@@ -1,10 +1,10 @@
 import axios from 'axios';
 
-const instance = axios.create({
-  baseURL: 'http://localhost:7140/api', // Replace with your backend URL
-  headers: {
-    'Content-Type': 'application/json',
-  },
+const apiUrl = process.env.REACT_APP_API_URL;
+
+const axiosInstance = axios.create({
+  baseURL: apiUrl, // Set the base URL for all requests
+  // You can add other configuration options here if needed
 });
 
-export default instance;
+export default axiosInstance;

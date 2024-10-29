@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { ThemeProvider } from 'react-bootstrap';
 import Home from './pages/Home';
 import Cart from './pages/Cart';
@@ -8,6 +8,13 @@ import Checkout from './pages/Checkout';
 import Auth from './pages/Auth';
 import OrderConfirmation from './pages/OrderConfirmation';
 import NavigationBar from './components/Navbar';
+import { UserContext } from './context/UserContext';
+
+// PrivateRoute component to protect routes
+function PrivateRoute({ children }) {
+  const { user } = useContext(UserContext);
+  return user ? children : <Navigate to="/auth" />;
+}
 
 function AppRouter() {
   return (
@@ -16,11 +23,35 @@ function AppRouter() {
         <NavigationBar />
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/order-confirmation" element={<OrderConfirmation />} />
           <Route path="/product-detail" element={<ProductDetail />} />
+          <Route path="/auth" element={<Auth />} />
+          
+          {/* Protected routes */}
+          <Route
+            path="/cart"
+            element={
+              <PrivateRoute>
+                <Cart />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/checkout"
+            element={
+              <PrivateRoute>
+                <Checkout />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/order-confirmation"
+            element={
+              <PrivateRoute>
+                <OrderConfirmation />
+              </PrivateRoute>
+            }
+          />
+          
           <Route path="*" element={<div>Page Not Found</div>} />
         </Routes>
       </Router>

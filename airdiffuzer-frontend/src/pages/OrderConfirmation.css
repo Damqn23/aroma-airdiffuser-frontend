@@ -1,0 +1,23 @@
+.order-confirmation-container {
+    max-width: 600px;
+    margin-top: 50px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+  }
+  
+  .order-confirmation-container h2 {
+    font-size: 2rem;
+    color: #343a40;
+  }
+  
+  .order-confirmation-container p {
+    font-size: 1.1rem;
+    color: #6c757d;
+  }
+  
+  .order-confirmation-container button {
+    margin-top: 20px;
+  }
+  

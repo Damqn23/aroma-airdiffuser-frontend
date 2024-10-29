@@ -1,57 +1,95 @@
-import React, { useState, useContext } from 'react';
-import { Container, Row, Col, Button, Table } from 'react-bootstrap';
+import React, { useState, useEffect, useContext } from 'react';
+import { Container, Button, Table } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { UserContext } from '../context/UserContext'; // Import UserContext
+import { UserContext } from '../context/UserContext';
 import AromaDiffuserImage from '../assets/1718432686293-e450d807b038497aa468be57c503904d-goods.webp';
+import axios from 'axios';
 import './Cart.css';
 
 function Cart() {
   const { user } = useContext(UserContext); // Get user from context
   const navigate = useNavigate();
+  const [cartItems, setCartItems] = useState([]);
 
-  const [cartItems, setCartItems] = useState([
-    {
-      id: 1,
-      name: 'Арома дифузер',
-      price: 39.99,
-      originalPrice: 59.99,
-      quantity: 1,
-      image: AromaDiffuserImage,
-    },
-  ]);
+  // Fetch cart items from backend
+  useEffect(() => {
+    const fetchCartItems = async () => {
+      try {
+        const response = await axios.get('https://aromaairdiffuserbackend-4.onrender.com/api/cart');
+        setCartItems(response.data);
+      } catch (error) {
+        console.error('Failed to fetch cart items:', error);
+      }
+    };
 
-  const incrementQuantity = (id) => {
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
-      )
-    );
+    fetchCartItems();
+  }, []);
+
+  // Increment quantity of an item
+  const incrementQuantity = async (id) => {
+    const item = cartItems.find((item) => item.id === id);
+    if (item) {
+      try {
+        await axios.post('https://aromaairdiffuserbackend-4.onrender.com/api/cart', {
+          productId: item.productId,
+          quantity: 1,
+        });
+        setCartItems((prevItems) =>
+          prevItems.map((item) =>
+            item.id === id ? { ...item, quantity: item.quantity + 1 } : item
+          )
+        );
+      } catch (error) {
+        console.error('Failed to increment quantity:', error);
+      }
+    }
   };
 
-  const decrementQuantity = (id) => {
-    setCartItems((prevItems) =>
-      prevItems.map((item) =>
-        item.id === id && item.quantity > 1
-          ? { ...item, quantity: item.quantity - 1 }
-          : item
-      )
-    );
+  // Decrement quantity of an item
+  const decrementQuantity = async (id) => {
+    const item = cartItems.find((item) => item.id === id && item.quantity > 1);
+    if (item) {
+      try {
+        await axios.put(`https://aromaairdiffuserbackend-4.onrender.com/api/cart/${id}`, {
+          quantity: item.quantity - 1,
+        });
+        setCartItems((prevItems) =>
+          prevItems.map((item) =>
+            item.id === id ? { ...item, quantity: item.quantity - 1 } : item
+          )
+        );
+      } catch (error) {
+        console.error('Failed to decrement quantity:', error);
+      }
+    }
   };
 
-  const removeItem = (id) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
+  // Remove item from cart
+  const removeItem = async (id) => {
+    try {
+      await axios.delete(`https://aromaairdiffuserbackend-4.onrender.com/api/cart/${id}`);
+      setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
+    } catch (error) {
+      console.error('Failed to remove item:', error);
+    }
   };
 
-  const totalPrice = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
-  );
+  const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
-  const proceedToCheckout = () => {
+  const proceedToCheckout = async () => {
     if (!user) {
       navigate('/auth'); // Redirect to Auth if not logged in
     } else {
-      navigate('/checkout'); // Proceed to checkout if logged in
+      try {
+        const response = await axios.post('https://aromaairdiffuserbackend-4.onrender.com/api/cart/checkout');
+        if (response.status === 200) {
+          alert('Order placed successfully!');
+          setCartItems([]); // Clear cart items on frontend after checkout
+        }
+      } catch (error) {
+        console.error('Checkout failed:', error);
+        alert('Failed to place order. Please try again.');
+      }
     }
   };
 
@@ -78,7 +116,7 @@ function Cart() {
                   <td>
                     <div className="cart-item">
                       <img
-                        src={item.image}
+                        src={AromaDiffuserImage}
                         alt={item.name}
                         className="cart-item-image"
                       />

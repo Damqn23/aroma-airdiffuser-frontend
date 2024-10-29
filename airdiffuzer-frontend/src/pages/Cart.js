@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import { Container, Row, Col, Button, Table, Form } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
+import React, { useState, useContext } from 'react';
+import { Container, Row, Col, Button, Table } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import { UserContext } from '../context/UserContext'; // Import UserContext
 import AromaDiffuserImage from '../assets/1718432686293-e450d807b038497aa468be57c503904d-goods.webp';
 import './Cart.css';
 
 function Cart() {
-  const navigate = useNavigate(); // Initialize the navigate hook
+  const { user } = useContext(UserContext); // Get user from context
+  const navigate = useNavigate();
 
-  // Example cart items
   const [cartItems, setCartItems] = useState([
     {
       id: 1,
@@ -19,7 +20,6 @@ function Cart() {
     },
   ]);
 
-  // Handle incrementing item quantity
   const incrementQuantity = (id) => {
     setCartItems((prevItems) =>
       prevItems.map((item) =>
@@ -28,7 +28,6 @@ function Cart() {
     );
   };
 
-  // Handle decrementing item quantity
   const decrementQuantity = (id) => {
     setCartItems((prevItems) =>
       prevItems.map((item) =>
@@ -39,20 +38,21 @@ function Cart() {
     );
   };
 
-  // Handle removing item from cart
   const removeItem = (id) => {
     setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
   };
 
-  // Calculate total price
   const totalPrice = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
     0
   );
 
-  // Handle proceeding to checkout
   const proceedToCheckout = () => {
-    navigate('/checkout'); // Redirect to the checkout page
+    if (!user) {
+      navigate('/auth'); // Redirect to Auth if not logged in
+    } else {
+      navigate('/checkout'); // Proceed to checkout if logged in
+    }
   };
 
   return (

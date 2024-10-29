@@ -1,10 +1,13 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import './Checkout.css';
-import { UserContext } from '../context/UserContext'; // Import UserContext
+import { UserContext } from '../context/UserContext';
+import axios from '../api/axios';
+import { useNavigate } from 'react-router-dom';
 
 function Checkout() {
-  const { user } = useContext(UserContext); // Access user information from context
+  const { user } = useContext(UserContext);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -19,7 +22,6 @@ function Checkout() {
     },
   });
 
-  // Prefill form with user data if available
   useEffect(() => {
     if (user) {
       setFormData((prevData) => ({
@@ -31,7 +33,6 @@ function Checkout() {
     }
   }, [user]);
 
-  // Handle input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -40,7 +41,6 @@ function Checkout() {
     }));
   };
 
-  // Handle card details input changes
   const handleCardInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -52,11 +52,16 @@ function Checkout() {
     }));
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form Data:', formData);
-    alert('Вашата поръчка е изпратена!');
+    try {
+      const response = await axios.post('/api/order/submit', formData);
+      alert(response.data.message); // Display response message
+      navigate('/order-confirmation'); // Redirect to OrderConfirmation
+    } catch (error) {
+      console.error("There was an error submitting the order:", error);
+      alert("An error occurred while submitting your order. Please try again.");
+    }
   };
 
   return (

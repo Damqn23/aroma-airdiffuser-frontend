@@ -2,17 +2,18 @@ import React, { useState, useContext } from 'react';
 import { Container, Row, Col, Form, Button, Tabs, Tab } from 'react-bootstrap';
 import './Auth.css';
 import { UserContext } from '../context/UserContext';
-
+import axios from 'axios';
+ 
 function Auth() {
   const { setUser } = useContext(UserContext);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [registerData, setRegisterData] = useState({
-    username: '', // Changed from name to username
+    username: '',
     email: '',
     password: '',
     confirmPassword: '',
   });
-
+ 
   // Handle input changes for Login form
   const handleLoginInputChange = (e) => {
     const { name, value } = e.target;
@@ -21,7 +22,7 @@ function Auth() {
       [name]: value,
     }));
   };
-
+ 
   // Handle input changes for Register form
   const handleRegisterInputChange = (e) => {
     const { name, value } = e.target;
@@ -30,29 +31,49 @@ function Auth() {
       [name]: value,
     }));
   };
-
+ 
   // Handle Login form submission
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault();
-    console.log('Login Data:', loginData);
-
-    // Assuming successful login:
-    const loggedInUser = {
-      username: 'Иван Петров', // Mock data for demonstration
-      email: loginData.email,
-      phone: '0888123456', // Mock data
-    };
-    setUser(loggedInUser);
-    alert('Успешно влязохте в системата!');
+ 
+    try {
+      const response = await axios.post('https://aromaairdiffuserbackend-4.onrender.com/api/auth/login', loginData);
+      if (response.status === 200) {
+        const loggedInUser = response.data;
+        setUser(loggedInUser);
+        alert('Успешно влязохте в системата!');
+      }
+    } catch (error) {
+      console.error('Login failed:', error);
+      alert('Login failed: Invalid credentials');
+    }
   };
-
+ 
   // Handle Register form submission
-  const handleRegisterSubmit = (e) => {
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
-    console.log('Register Data:', registerData);
-    // Implement registration logic here
+ 
+    if (registerData.password !== registerData.confirmPassword) {
+      alert("Passwords don't match!");
+      return;
+    }
+ 
+    try {
+      const response = await axios.post('https://aromaairdiffuserbackend-4.onrender.com/api/auth/register', {
+        username: registerData.username,
+        email: registerData.email,
+        password: registerData.password,
+        confirmPassword: registerData.confirmPassword,
+      });
+      if (response.status === 200) {
+        alert('Registration successful! You can now log in.');
+      }
+    } catch (error) {
+      console.error('Registration failed:', error);
+      alert('Registration failed: Please try again.');
+    }
   };
-
+ 
   return (
     <Container className="mt-5 auth-container">
       <Row className="justify-content-center">
@@ -72,7 +93,7 @@ function Auth() {
                     required
                   />
                 </Form.Group>
-
+ 
                 <Form.Group controlId="formLoginPassword" className="mb-3">
                   <Form.Label>Парола</Form.Label>
                   <Form.Control
@@ -84,7 +105,7 @@ function Auth() {
                     required
                   />
                 </Form.Group>
-
+ 
                 <div className="d-flex justify-content-center">
                   <Button variant="primary" type="submit">
                     Вход
@@ -92,7 +113,7 @@ function Auth() {
                 </div>
               </Form>
             </Tab>
-
+ 
             {/* Register Tab */}
             <Tab eventKey="register" title="Регистрация">
               <Form onSubmit={handleRegisterSubmit}>
@@ -102,12 +123,12 @@ function Auth() {
                     type="text"
                     placeholder="Въведете вашето потребителско име"
                     name="username"
-                    value={registerData.username} // Updated to username
+                    value={registerData.username}
                     onChange={handleRegisterInputChange}
                     required
                   />
                 </Form.Group>
-
+ 
                 <Form.Group controlId="formRegisterEmail" className="mb-3">
                   <Form.Label>Имейл адрес</Form.Label>
                   <Form.Control
@@ -119,7 +140,7 @@ function Auth() {
                     required
                   />
                 </Form.Group>
-
+ 
                 <Form.Group controlId="formRegisterPassword" className="mb-3">
                   <Form.Label>Парола</Form.Label>
                   <Form.Control
@@ -131,7 +152,7 @@ function Auth() {
                     required
                   />
                 </Form.Group>
-
+ 
                 <Form.Group controlId="formConfirmPassword" className="mb-3">
                   <Form.Label>Потвърдете паролата</Form.Label>
                   <Form.Control
@@ -143,7 +164,7 @@ function Auth() {
                     required
                   />
                 </Form.Group>
-
+ 
                 <div className="d-flex justify-content-center">
                   <Button variant="primary" type="submit">
                     Регистрация
@@ -157,5 +178,5 @@ function Auth() {
     </Container>
   );
 }
-
+ 
 export default Auth;

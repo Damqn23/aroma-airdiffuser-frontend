@@ -1,83 +1,89 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
-// Импортиране на изображението
-import AromaDiffuserImage from '../assets/1718432686293-e450d807b038497aa468be57c503904d-goods.webp';
-// Импортиране на CSS за стилизиране
+import { useNavigate, useParams } from 'react-router-dom'; // Import useParams to get product ID
+import axios from 'axios';
 import './ProductDetail.css';
-
+ 
 function ProductDetail() {
-  const navigate = useNavigate(); // Initialize navigate hook
-
-  // Function to handle adding the product to the cart
+  const navigate = useNavigate();
+  const { id } = useParams(); // Get product ID from the route
+  const [product, setProduct] = useState(null);
+  const [reviews, setReviews] = useState([]);
+ 
+  // Fetch product details and reviews from backend
+  useEffect(() => {
+    const fetchProductDetail = async () => {
+      try {
+        const productResponse = await axios.get(`https://aromaairdiffuserbackend-4.onrender.com/api/productdetail/${id}`);
+        setProduct(productResponse.data);
+ 
+        const reviewsResponse = await axios.get(`https://aromaairdiffuserbackend-4.onrender.com/api/productdetail/${id}/reviews`);
+        setReviews(reviewsResponse.data);
+      } catch (error) {
+        console.error('Failed to fetch product details or reviews:', error);
+      }
+    };
+ 
+    fetchProductDetail();
+  }, [id]);
+ 
   const handleAddToCart = () => {
-    // Here you could add the logic for adding the item to the cart (e.g., update state or call a service)
-    
-    // Navigate to the cart page
+    // Logic to add the product to the cart
     navigate('/cart');
   };
-
+ 
+  if (!product) {
+    return <p>Loading...</p>;
+  }
+ 
   return (
     <Container className="mt-5 product-detail-container">
       <Row>
-        {/* Медийна секция (Снимки/Видео) */}
         <Col md={6}>
           <div className="media-section">
-            <img src={AromaDiffuserImage} alt="Арома дифузер" className="product-image mb-4" />
-            {/* Плейсхолдър за видео съдържание */}
+            <img src={product.imageUrl} alt={product.name} className="product-image mb-4" />
             <video className="product-video" controls>
               <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
-              Вашият браузър не поддържа видео таг.
+              Your browser does not support the video tag.
             </video>
           </div>
         </Col>
-
-        {/* Секция Описание на продукта */}
+ 
         <Col md={6} className="product-info">
-          <h2>Арома дифузер</h2>
-          <p>Създайте спокойна атмосфера с нашия нов арома дифузер. Идеален за подобряване на вашия дом или работно място със свежи аромати и релаксираща атмосфера. Ароматерапията може значително да подобри настроението и да намали стреса, правейки средата по-приятна и продуктивна.</p>
-
-          {/* Списък с ключови характеристики */}
+          <h2>{product.name}</h2>
+          <p>{product.description}</p>
+ 
           <ul className="feature-list">
-            <li>Напреднала нано атомизация за по-фина мъгла.</li>
-            <li>Тиха работа – идеална за работа и сън.</li>
-            <li>До 12 часа непрекъсната мъгла.</li>
-            <li>Автоматично изключване за безопасност.</li>
-            <li>Съвместим с различни етерични масла.</li>
+            {product.features.map((feature, index) => (
+              <li key={index}>{feature}</li>
+            ))}
           </ul>
-
-          {/* Секция Цена */}
+ 
           <div className="price-section">
-            <span className="original-price">59.99 лв</span> <span className="discount-price">39.99 лв</span>
+            <span className="original-price">{product.originalPrice} лв</span>
+            <span className="discount-price">{product.price} лв</span>
           </div>
           <Button className="btn-pulse mt-3" variant="primary" onClick={handleAddToCart}>
-            Добави в кошницата
+            Add to Cart
           </Button>
-
-          {/* Отзиви на клиенти */}
+ 
           <div className="customer-reviews mt-4">
-            <h4>Отзиви на клиенти</h4>
-            <div className="review">
-              <strong>Жана Д.</strong> <span className="review-rating">★★★★★</span>
-              <p>“Обожавам този дифузер! Ароматът е невероятен и наистина ми помага да се отпусна след дълъг ден. Силно препоръчвам!”</p>
-            </div>
-            <div className="review">
-              <strong>Петър М.</strong> <span className="review-rating">★★★★☆</span>
-              <p>“Дифузерът работи много добре и е много тих. Единственото, което бих искал, е малко по-дълго време на работа без презареждане.”</p>
-            </div>
-            <div className="review">
-              <strong>Мария К.</strong> <span className="review-rating">★★★★★</span>
-              <p>“Чудесен продукт! Използвам го всеки ден и атмосферата вкъщи е невероятно успокояваща. Силно препоръчвам на всички!”</p>
-            </div>
-            <div className="review">
-              <strong>Иван Г.</strong> <span className="review-rating">★★★★☆</span>
-              <p>“Много съм доволен от качеството и дизайна на този дифузер. Мъглата е фина и ароматът се разпространява равномерно в стаята.”</p>
-            </div>
+            <h4>Customer Reviews</h4>
+            {reviews.length === 0 ? (
+              <p>No reviews available for this product.</p>
+            ) : (
+              reviews.map((review) => (
+                <div className="review" key={review.id}>
+                  <strong>{review.author}</strong> <span className="review-rating">★★★★★</span>
+                  <p>{review.comment}</p>
+                </div>
+              ))
+            )}
           </div>
         </Col>
       </Row>
     </Container>
   );
 }
-
+ 
 export default ProductDetail;

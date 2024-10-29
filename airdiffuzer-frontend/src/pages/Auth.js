@@ -37,7 +37,7 @@ function Auth() {
     e.preventDefault();
  
     try {
-      const response = await axios.post('https://aromaairdiffuserbackend-4.onrender.com/api/auth/login', loginData);
+      const response = await axios.post('https://aromaairdiffuserbackend-4.onrender.com/api/Auth/login', loginData);
       if (response.status === 200) {
         const loggedInUser = response.data;
         setUser(loggedInUser);
@@ -59,7 +59,7 @@ function Auth() {
     }
  
     try {
-      const response = await axios.post('https://aromaairdiffuserbackend-4.onrender.com/api/auth/register', {
+      const response = await axios.post('https://aromaairdiffuserbackend-4.onrender.com/api/Auth/register', {
         username: registerData.username,
         email: registerData.email,
         password: registerData.password,

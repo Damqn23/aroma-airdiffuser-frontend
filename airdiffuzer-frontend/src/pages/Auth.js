@@ -1,13 +1,13 @@
 import React, { useState, useContext } from 'react';
 import { Container, Row, Col, Form, Button, Tabs, Tab } from 'react-bootstrap';
 import './Auth.css';
-import { UserContext } from '../context/UserContext'; // Import UserContext
+import { UserContext } from '../context/UserContext';
 
 function Auth() {
-  const { setUser } = useContext(UserContext); // Access UserContext to set user data
+  const { setUser } = useContext(UserContext);
   const [loginData, setLoginData] = useState({ email: '', password: '' });
   const [registerData, setRegisterData] = useState({
-    name: '',
+    username: '', // Changed from name to username
     email: '',
     password: '',
     confirmPassword: '',
@@ -38,11 +38,11 @@ function Auth() {
 
     // Assuming successful login:
     const loggedInUser = {
-      name: 'Иван Петров', // Mock data for demonstration
+      username: 'Иван Петров', // Mock data for demonstration
       email: loginData.email,
       phone: '0888123456', // Mock data
     };
-    setUser(loggedInUser); // Save logged-in user data in context
+    setUser(loggedInUser);
     alert('Успешно влязохте в системата!');
   };
 
@@ -96,13 +96,13 @@ function Auth() {
             {/* Register Tab */}
             <Tab eventKey="register" title="Регистрация">
               <Form onSubmit={handleRegisterSubmit}>
-                <Form.Group controlId="formRegisterName" className="mb-3">
-                  <Form.Label>Име и фамилия</Form.Label>
+                <Form.Group controlId="formRegisterUsername" className="mb-3">
+                  <Form.Label>Потребителско име</Form.Label>
                   <Form.Control
                     type="text"
-                    placeholder="Въведете вашето име и фамилия"
-                    name="name"
-                    value={registerData.name}
+                    placeholder="Въведете вашето потребителско име"
+                    name="username"
+                    value={registerData.username} // Updated to username
                     onChange={handleRegisterInputChange}
                     required
                   />

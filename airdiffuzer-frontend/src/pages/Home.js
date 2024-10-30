@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Button, Card } from 'react-bootstrap';
 import './Home.css';
 import AromaDiffuserImage from '../assets/1718432686293-e450d807b038497aa468be57c503904d-goods.webp';
@@ -15,7 +15,6 @@ function Home() {
     imageUrl: AromaDiffuserImage,
   });
 
-  // Redirect to product detail page on card click
   const handleCardClick = () => {
     navigate('/product-detail');
   };
@@ -38,10 +37,8 @@ function Home() {
       <div className="moving-circle circle-2"></div>
       <div className="moving-circle circle-3"></div>
 
-      <h1 className="main-heading">Добре дошли в магазина за арома дифузери
-      </h1>
-      <p className="sub-heading">Открийте най-добрите арома дифузери за спокойна атмосфера.
-      </p>
+      <h1 className="main-heading">Добре дошли в магазина за арома дифузери</h1>
+      <p className="sub-heading">Открийте най-добрите арома дифузери за спокойна атмосфера.</p>
 
       <Row className="d-flex justify-content-center">
         <Col md={6} lg={4}>

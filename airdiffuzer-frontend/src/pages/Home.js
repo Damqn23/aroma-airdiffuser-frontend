@@ -1,45 +1,48 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Button, Card } from 'react-bootstrap';
-import axios from 'axios';
 import './Home.css';
- 
+import AromaDiffuserImage from '../assets/1718432686293-e450d807b038497aa468be57c503904d-goods.webp';
+
 function Home() {
   const navigate = useNavigate();
-  const [product, setProduct] = useState(null); // State for the product data
- 
-  // Fetch product data from backend
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await axios.get('https://aromaairdiffuserbackend-4.onrender.com/api/product');
-        setProduct(response.data[0]); // Assuming you want the first product as the main display
-      } catch (error) {
-        console.error('Failed to fetch product data:', error);
-      }
-    };
- 
-    fetchProduct();
-  }, []);
- 
+  const [product] = useState({
+    id: 1,
+    name: 'Aroma Air Diffuser',
+    description: 'A high-quality aroma air diffuser for a calming atmosphere.',
+    originalPrice: 59.99,
+    price: 39.99,
+    imageUrl: AromaDiffuserImage,
+  });
+
   // Redirect to product detail page on card click
   const handleCardClick = () => {
     navigate('/product-detail');
   };
- 
-  if (!product) {
-    return <p>Loading...</p>;
-  }
- 
+
+  const handleAddToCart = () => {
+    const cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+    const existingItemIndex = cartItems.findIndex((item) => item.id === product.id);
+    if (existingItemIndex !== -1) {
+      cartItems[existingItemIndex].quantity += 1;
+    } else {
+      cartItems.push({ ...product, quantity: 1 });
+    }
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+    navigate('/cart');
+  };
+
   return (
     <Container className="mt-5">
       <div className="moving-circle circle-1"></div>
       <div className="moving-circle circle-2"></div>
       <div className="moving-circle circle-3"></div>
- 
-      <h1 className="main-heading">Добре дошли в магазина за арома дифузери</h1>
-      <p className="sub-heading">Открийте най-добрите арома дифузери за спокойна атмосфера.</p>
- 
+
+      <h1 className="main-heading">Добре дошли в магазина за арома дифузери
+      </h1>
+      <p className="sub-heading">Открийте най-добрите арома дифузери за спокойна атмосфера.
+      </p>
+
       <Row className="d-flex justify-content-center">
         <Col md={6} lg={4}>
           <Card
@@ -55,13 +58,13 @@ function Home() {
                 {product.description}
               </Card.Text>
               <div className="text-center price-section">
-                <span className="original-price">{product.originalPrice} лв</span> 
+                <span className="original-price">{product.originalPrice} лв</span>
                 <span className="discount-price">{product.price} лв</span>
               </div>
               <div className="d-flex justify-content-center mt-3">
-                <Link to="/cart">
-                  <Button className="btn-pulse" variant="primary">Добави в кошницата</Button>
-                </Link>
+                <Button className="btn-pulse" variant="primary" onClick={handleAddToCart}>
+                  Добави в кошницата
+                </Button>
               </div>
             </Card.Body>
           </Card>
@@ -70,5 +73,5 @@ function Home() {
     </Container>
   );
 }
- 
+
 export default Home;

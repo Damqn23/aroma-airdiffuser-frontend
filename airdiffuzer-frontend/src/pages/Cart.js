@@ -6,13 +6,11 @@ import './Cart.css';
 function Cart() {
   const [cartItems, setCartItems] = useState([]);
 
-  // Load cart items from localStorage on initial load
   useEffect(() => {
     const storedCartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
     setCartItems(storedCartItems);
   }, []);
 
-  // Increment quantity of an item
   const incrementQuantity = (id) => {
     setCartItems((prevItems) =>
       prevItems.map((item) =>
@@ -21,7 +19,6 @@ function Cart() {
     );
   };
 
-  // Decrement quantity of an item
   const decrementQuantity = (id) => {
     setCartItems((prevItems) =>
       prevItems.map((item) =>
@@ -32,14 +29,12 @@ function Cart() {
     );
   };
 
-  // Remove item from cart
   const removeItem = (id) => {
     setCartItems((prevItems) => prevItems.filter((item) => item.id !== id));
   };
 
   const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
-  // Open Econt checkout in a new window
   const proceedToCheckout = () => {
     window.open(
       "https://delivery.econt.com/checkout.php?id_shop=8659616&currency=BGN&items%5B0%5D%5Bname%5D=%D0%94%D0%B8%D1%84%D1%83%D0%B7%D1%8A%D1%80&items%5B0%5D%5BSKU%5D=AD001&items%5B0%5D%5BURL%5D=https%3A%2F%2Fairdiffusershop.netlify.app%2Fproduct-detail&items%5B0%5D%5BimageURL%5D=&items%5B0%5D%5Bcount%5D=1&items%5B0%5D%5BtotalWeight%5D=1&items%5B0%5D%5BhasAdditionalDetails%5D=1&items%5B0%5D%5BtotalPrice%5D=39.99",

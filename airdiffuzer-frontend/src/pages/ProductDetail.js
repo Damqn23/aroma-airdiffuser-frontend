@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Container, Row, Col, Button } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom'; // Import useParams to get product ID
+import { useNavigate } from 'react-router-dom';
 import './ProductDetail.css';
 import AromaDiffuserImage from '../assets/1718432686293-e450d807b038497aa468be57c503904d-goods.webp';
 
 function ProductDetail() {
   const navigate = useNavigate();
-  const { id } = useParams(); // Get product ID from the route
-  const [product, setProduct] = useState({
+  const [product] = useState({
     id: 1,
     name: 'Aroma Air Diffuser',
     description: 'A high-quality aroma air diffuser for a calming atmosphere.',
@@ -16,7 +15,7 @@ function ProductDetail() {
     imageUrl: AromaDiffuserImage,
     features: ['Feature 1', 'Feature 2', 'Feature 3'],
   });
-  const [reviews, setReviews] = useState([
+  const [reviews] = useState([
     {
       id: 1,
       author: 'John Doe',

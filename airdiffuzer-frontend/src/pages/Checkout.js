@@ -1,12 +1,9 @@
-import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
-import './Checkout.css';
-import { UserContext } from '../context/UserContext';
-import axios from '../api/axios';
 import { useNavigate } from 'react-router-dom';
 
 function Checkout() {
-  const { user } = useContext(UserContext);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
@@ -22,16 +19,30 @@ function Checkout() {
     },
   });
 
+  const productPrice = 39.99;
+  const [deliveryPrice, setDeliveryPrice] = useState(0);
+  const [econtLocations, setEcontLocations] = useState([]);
+  const [filteredLocations, setFilteredLocations] = useState([]);
+
+  // Total amount calculation based on payment method
+  const totalAmount = formData.paymentMethod === 'cashOnDelivery'
+    ? productPrice + deliveryPrice
+    : productPrice;
+
   useEffect(() => {
-    if (user) {
-      setFormData((prevData) => ({
-        ...prevData,
-        name: user.name || '',
-        email: user.email || '',
-        phone: user.phone || '',
-      }));
+    // Fetch Econt locations from the backend server
+    async function fetchEcontLocations() {
+      try {
+        const response = await axios.get('http://localhost:5000/api/locations');
+        setEcontLocations(response.data);
+        setFilteredLocations(response.data);
+      } catch (error) {
+        console.error("Error fetching Econt locations:", error);
+      }
     }
-  }, [user]);
+
+    fetchEcontLocations();
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -39,29 +50,36 @@ function Checkout() {
       ...prevData,
       [name]: value,
     }));
-  };
 
-  const handleCardInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      cardDetails: {
-        ...prevData.cardDetails,
-        [name]: value,
-      },
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await axios.post('/api/order/submit', formData);
-      alert(response.data.message); // Display response message
-      navigate('/order-confirmation'); // Redirect to OrderConfirmation
-    } catch (error) {
-      console.error("There was an error submitting the order:", error);
-      alert("An error occurred while submitting your order. Please try again.");
+    if (name === 'econt') {
+      // Filter locations as user types
+      setFilteredLocations(
+        econtLocations.filter(location =>
+          location.name.toLowerCase().includes(value.toLowerCase())
+        )
+      );
     }
+  };
+
+  const handleLocationSelect = async (location) => {
+    setFormData({ ...formData, econt: location.name });
+    setFilteredLocations([]); // Hide suggestions
+
+    // Calculate delivery price based on selected location
+    try {
+      const response = await axios.post('http://localhost:5000/api/calculate-delivery', {
+        destination: location.id, // Pass the location ID to backend
+      });
+      setDeliveryPrice(response.data.price);
+    } catch (error) {
+      console.error("Error calculating delivery price:", error);
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    alert('Order placed successfully! You will receive an email confirmation shortly.');
+    navigate('/order-confirmation');
   };
 
   return (
@@ -122,11 +140,25 @@ function Checkout() {
                 onChange={handleInputChange}
                 required
               />
+              <div className="econt-suggestions">
+                {filteredLocations.map((location) => (
+                  <div
+                    key={location.id}
+                    className="suggestion-item"
+                    onClick={() => handleLocationSelect(location)}
+                  >
+                    {location.name}
+                  </div>
+                ))}
+              </div>
             </Form.Group>
           </Col>
         </Row>
 
-        {/* Payment Method Section */}
+        <div className="total-amount">
+          <h4>Обща сума: {totalAmount.toFixed(2)} лв</h4>
+        </div>
+
         <Form.Group controlId="formPaymentMethod" className="mb-4">
           <Form.Label>Метод на плащане</Form.Label>
           <div>
@@ -151,74 +183,9 @@ function Checkout() {
           </div>
         </Form.Group>
 
-        {/* Conditionally render card details form */}
-        {formData.paymentMethod === 'card' && (
-          <div className="card-details-section mb-4">
-            <h5>Данни за картата</h5>
-            <Row>
-              <Col md={6}>
-                <Form.Group controlId="formCardholderName" className="mb-3">
-                  <Form.Label>Име на картодържателя</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Въведете името на картодържателя"
-                    name="cardholderName"
-                    value={formData.cardDetails.cardholderName}
-                    onChange={handleCardInputChange}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group controlId="formCardNumber" className="mb-3">
-                  <Form.Label>Номер на картата</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Въведете номера на картата"
-                    name="cardNumber"
-                    value={formData.cardDetails.cardNumber}
-                    onChange={handleCardInputChange}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-            <Row>
-              <Col md={4}>
-                <Form.Group controlId="formExpiryDate" className="mb-3">
-                  <Form.Label>Валидност (MM/YY)</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="MM/YY"
-                    name="expiryDate"
-                    value={formData.cardDetails.expiryDate}
-                    onChange={handleCardInputChange}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={4}>
-                <Form.Group controlId="formCVC" className="mb-3">
-                  <Form.Label>CVC</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="CVC"
-                    name="cvc"
-                    value={formData.cardDetails.cvc}
-                    onChange={handleCardInputChange}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-          </div>
-        )}
-
-        <div className="d-flex justify-content-center">
-          <Button variant="primary" type="submit">
-            Потвърдете поръчката
-          </Button>
-        </div>
+        <Button variant="primary" type="submit">
+          Потвърдете поръчката
+        </Button>
       </Form>
     </Container>
   );

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
@@ -11,38 +11,13 @@ function Checkout() {
     phone: '',
     econt: '',
     paymentMethod: 'cashOnDelivery',
-    cardDetails: {
-      cardholderName: '',
-      cardNumber: '',
-      expiryDate: '',
-      cvc: '',
-    },
   });
 
   const productPrice = 39.99;
-  const [deliveryPrice, setDeliveryPrice] = useState(0);
-  const [econtLocations, setEcontLocations] = useState([]);
-  const [filteredLocations, setFilteredLocations] = useState([]);
-
-  // Total amount calculation based on payment method
+  const deliveryPrice = 5; // Fixed delivery cost
   const totalAmount = formData.paymentMethod === 'cashOnDelivery'
     ? productPrice + deliveryPrice
     : productPrice;
-
-  useEffect(() => {
-    // Fetch Econt locations from the backend server
-    async function fetchEcontLocations() {
-      try {
-        const response = await axios.get('http://localhost:5000/api/locations');
-        setEcontLocations(response.data);
-        setFilteredLocations(response.data);
-      } catch (error) {
-        console.error("Error fetching Econt locations:", error);
-      }
-    }
-
-    fetchEcontLocations();
-  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -50,36 +25,22 @@ function Checkout() {
       ...prevData,
       [name]: value,
     }));
-
-    if (name === 'econt') {
-      // Filter locations as user types
-      setFilteredLocations(
-        econtLocations.filter(location =>
-          location.name.toLowerCase().includes(value.toLowerCase())
-        )
-      );
-    }
   };
 
-  const handleLocationSelect = async (location) => {
-    setFormData({ ...formData, econt: location.name });
-    setFilteredLocations([]); // Hide suggestions
-
-    // Calculate delivery price based on selected location
-    try {
-      const response = await axios.post('http://localhost:5000/api/calculate-delivery', {
-        destination: location.id, // Pass the location ID to backend
-      });
-      setDeliveryPrice(response.data.price);
-    } catch (error) {
-      console.error("Error calculating delivery price:", error);
-    }
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert('Order placed successfully! You will receive an email confirmation shortly.');
-    navigate('/order-confirmation');
+
+    try {
+      await axios.post('http://localhost:5000/api/submit-order', {
+        ...formData,
+        totalAmount: productPrice, // Pass only the product price here; backend will add the delivery cost
+      });
+      alert('Order placed successfully! You will receive an email confirmation shortly.');
+      navigate('/order-confirmation');
+    } catch (error) {
+      console.error("Error submitting order:", error);
+      alert('There was an error submitting your order. Please try again.');
+    }
   };
 
   return (
@@ -140,17 +101,6 @@ function Checkout() {
                 onChange={handleInputChange}
                 required
               />
-              <div className="econt-suggestions">
-                {filteredLocations.map((location) => (
-                  <div
-                    key={location.id}
-                    className="suggestion-item"
-                    onClick={() => handleLocationSelect(location)}
-                  >
-                    {location.name}
-                  </div>
-                ))}
-              </div>
             </Form.Group>
           </Col>
         </Row>

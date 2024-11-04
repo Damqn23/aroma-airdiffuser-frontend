@@ -1,39 +1,45 @@
 const express = require('express');
-<<<<<<< HEAD
 const cors = require('cors');
 const dotenv = require('dotenv');
 const sgMail = require('@sendgrid/mail');
 
+// Load environment variables from .env file
 dotenv.config();
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-=======
-const axios = require('axios');
-const cors = require('cors');
-require('dotenv').config();
->>>>>>> f073d1799694603783afc99ba459c3f02b9ccbb6
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-<<<<<<< HEAD
+// POST endpoint to submit an order
 app.post('/api/submit-order', async (req, res) => {
+  // Destructure order details from the request body
   const { name, email, phone, econt, paymentMethod, totalAmount } = req.body;
-  const deliveryCost = 5;
-  const finalAmount = totalAmount + deliveryCost;
 
+  // Validate input data
+  if (!name || !email || !phone || !econt || !paymentMethod || !totalAmount) {
+    return res.status(400).send({
+      message: 'All order details must be provided',
+    });
+  }
+
+  // Define delivery cost and calculate the final amount
+  const deliveryCost = 5;
+  const finalAmount = parseFloat(totalAmount) + deliveryCost;
+
+  // Log the received order details
   console.log(`Received order:
     Name: ${name}
     Email: ${email}
     Phone: ${phone}
     Delivery Location: ${econt}
     Payment Method: ${paymentMethod === 'card' ? 'Paid by card' : 'Cash on delivery'}
-    Total Amount (incl. delivery): ${finalAmount} BGN
+    Total Amount (incl. delivery): ${finalAmount.toFixed(2)} BGN
   `);
 
-  // Prepare email content
+  // Prepare email content for the order notification
   const msg = {
-    to: process.env.ORDER_NOTIFICATION_EMAIL, // Your recipient email from .env
+    to: process.env.ORDER_NOTIFICATION_EMAIL, // Recipient email address from .env
     from: 'damandimov225@gmail.com', // Verified sender email
     subject: 'New Order Confirmation',
     text: `A new order has been placed:
@@ -42,15 +48,17 @@ app.post('/api/submit-order', async (req, res) => {
       Phone: ${phone}
       Delivery Location: ${econt}
       Payment Method: ${paymentMethod === 'card' ? 'Paid by card' : 'Cash on delivery'}
-      Total Amount (incl. delivery): ${finalAmount} BGN
+      Total Amount (incl. delivery): ${finalAmount.toFixed(2)} BGN
     `,
   };
 
   try {
-    // Send the email
+    // Attempt to send the email
     await sgMail.send(msg);
     console.log('Email sent successfully');
-    res.send({
+
+    // Send a response back to the client
+    res.status(200).send({
       message: 'Order submitted and email sent successfully',
       orderDetails: {
         name,
@@ -58,50 +66,20 @@ app.post('/api/submit-order', async (req, res) => {
         phone,
         econt,
         paymentMethod,
-        totalAmount: finalAmount,
+        totalAmount: finalAmount.toFixed(2),
       },
     });
   } catch (error) {
-    console.error('Error sending email:', error.response ? error.response.body : error);
+    console.error('Error sending email:', error.response ? error.response.body : error.message);
     res.status(500).send({
       message: 'Error submitting order. Please try again later.',
       error: error.response ? error.response.body : error.message,
     });
-=======
-// Endpoint to fetch Econt locations
-app.get('/api/locations', async (req, res) => {
-  try {
-    const response = await axios.get('https://api.econt.com/v1/locations', {
-      headers: { Authorization: `Bearer ${process.env.ECONT_API_KEY}` },
-    });
-    res.json(response.data);
-  } catch (error) {
-    res.status(500).send('Error fetching locations');
   }
 });
 
-// Endpoint to calculate delivery cost
-app.post('/api/calculate-delivery', async (req, res) => {
-  try {
-    const { destination } = req.body; // receive destination from frontend
-    const response = await axios.post(
-      'https://api.econt.com/v1/calculate-delivery',
-      {
-        origin: 'default-origin', // replace as needed
-        destination,
-      },
-      {
-        headers: { Authorization: `Bearer ${process.env.ECONT_API_KEY}` },
-      }
-    );
-    res.json(response.data);
-  } catch (error) {
-    res.status(500).send('Error calculating delivery');
->>>>>>> f073d1799694603783afc99ba459c3f02b9ccbb6
-  }
-});
-
-const PORT = 5000;
+// Start the server on the defined port
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

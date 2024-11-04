@@ -1,11 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Button, Table } from 'react-bootstrap';
+<<<<<<< HEAD
 import { useNavigate } from 'react-router-dom';
+=======
+>>>>>>> f073d1799694603783afc99ba459c3f02b9ccbb6
 import AromaDiffuserImage from '../assets/1718432686293-e450d807b038497aa468be57c503904d-goods.webp';
 import './Cart.css';
 
 function Cart() {
+<<<<<<< HEAD
   const navigate = useNavigate();
+=======
+>>>>>>> f073d1799694603783afc99ba459c3f02b9ccbb6
   const [cartItems, setCartItems] = useState([]);
 
   useEffect(() => {
@@ -38,7 +44,15 @@ function Cart() {
   const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
   const proceedToCheckout = () => {
+<<<<<<< HEAD
     navigate('/checkout'); // Redirect to the internal checkout route
+=======
+    window.open(
+      "https://delivery.econt.com/checkout.php?id_shop=8659616&currency=BGN&items%5B0%5D%5Bname%5D=%D0%94%D0%B8%D1%84%D1%83%D0%B7%D1%8A%D1%80&items%5B0%5D%5BSKU%5D=AD001&items%5B0%5D%5BURL%5D=https%3A%2F%2Fairdiffusershop.netlify.app%2Fproduct-detail&items%5B0%5D%5BimageURL%5D=&items%5B0%5D%5Bcount%5D=1&items%5B0%5D%5BtotalWeight%5D=1&items%5B0%5D%5BhasAdditionalDetails%5D=1&items%5B0%5D%5BtotalPrice%5D=39.99",
+      "econt-delivery-order",
+      "width=600,height=840"
+    );
+>>>>>>> f073d1799694603783afc99ba459c3f02b9ccbb6
   };
 
   return (
@@ -70,6 +84,12 @@ function Cart() {
                       />
                       <span>{item.name}</span>
                     </div>
+<<<<<<< HEAD
+=======
+                    <div className="text-muted small">
+                      Прогнозна доставка: 3-5 дни
+                    </div>
+>>>>>>> f073d1799694603783afc99ba459c3f02b9ccbb6
                   </td>
                   <td>{item.price.toFixed(2)} лв</td>
                   <td>
@@ -115,9 +135,28 @@ function Cart() {
           <div className="d-flex justify-content-center mt-4">
             <Button
               variant="primary"
+<<<<<<< HEAD
               onClick={proceedToCheckout}
             >
               Продължете към плащане
+=======
+              style={{
+                userSelect: 'none',
+                display: 'inline-block',
+                textDecoration: 'none',
+                backgroundColor: '#234182',
+                borderRadius: '40px',
+                lineHeight: '43px',
+                padding: '0 40px',
+                color: '#fff',
+                fontWeight: 400,
+                fontSize: '15px',
+                boxShadow: '0 2px 2px 0 rgba(33,33,33,.24)',
+              }}
+              onClick={proceedToCheckout}
+            >
+              Достави с Еконт
+>>>>>>> f073d1799694603783afc99ba459c3f02b9ccbb6
             </Button>
           </div>
         </>

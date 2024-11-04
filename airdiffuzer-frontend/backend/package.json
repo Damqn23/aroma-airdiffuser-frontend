@@ -11,7 +11,10 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+<<<<<<< HEAD
     "@sendgrid/mail": "^8.1.4",
+=======
+>>>>>>> f073d1799694603783afc99ba459c3f02b9ccbb6
     "axios": "^1.7.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

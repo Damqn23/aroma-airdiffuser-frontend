@@ -1,15 +1,22 @@
 const express = require('express');
+<<<<<<< HEAD
 const cors = require('cors');
 const dotenv = require('dotenv');
 const sgMail = require('@sendgrid/mail');
 
 dotenv.config();
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+=======
+const axios = require('axios');
+const cors = require('cors');
+require('dotenv').config();
+>>>>>>> f073d1799694603783afc99ba459c3f02b9ccbb6
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+<<<<<<< HEAD
 app.post('/api/submit-order', async (req, res) => {
   const { name, email, phone, econt, paymentMethod, totalAmount } = req.body;
   const deliveryCost = 5;
@@ -60,6 +67,37 @@ app.post('/api/submit-order', async (req, res) => {
       message: 'Error submitting order. Please try again later.',
       error: error.response ? error.response.body : error.message,
     });
+=======
+// Endpoint to fetch Econt locations
+app.get('/api/locations', async (req, res) => {
+  try {
+    const response = await axios.get('https://api.econt.com/v1/locations', {
+      headers: { Authorization: `Bearer ${process.env.ECONT_API_KEY}` },
+    });
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send('Error fetching locations');
+  }
+});
+
+// Endpoint to calculate delivery cost
+app.post('/api/calculate-delivery', async (req, res) => {
+  try {
+    const { destination } = req.body; // receive destination from frontend
+    const response = await axios.post(
+      'https://api.econt.com/v1/calculate-delivery',
+      {
+        origin: 'default-origin', // replace as needed
+        destination,
+      },
+      {
+        headers: { Authorization: `Bearer ${process.env.ECONT_API_KEY}` },
+      }
+    );
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).send('Error calculating delivery');
+>>>>>>> f073d1799694603783afc99ba459c3f02b9ccbb6
   }
 });
 

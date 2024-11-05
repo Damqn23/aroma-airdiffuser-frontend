@@ -8,23 +8,49 @@ function ProductDetail() {
   const navigate = useNavigate();
   const [product] = useState({
     id: 1,
-    name: 'Aroma Air Diffuser',
-    description: 'A high-quality aroma air diffuser for a calming atmosphere.',
+    name: 'Арома дифузер за въздух',
+    description: 'Насладете се на спокойна атмосфера с нашия висококачествен арома дифузер. Осигурява равномерно разпръскване на ароматите, като създава уют и комфорт във вашия дом или офис.',
     originalPrice: 59.99,
     price: 39.99,
     imageUrl: AromaDiffuserImage,
-    features: ['Feature 1', 'Feature 2', 'Feature 3'],
+    features: [
+      'Компактен и модерен дизайн, подходящ за всеки интериор',
+      'Работи тихо и икономично',
+      'Регулируем интензитет на ароматите и LED светлини за различни настроения',
+      'Автоматично изключване при липса на вода за безопасност',
+    ],
   });
+
   const [reviews] = useState([
     {
       id: 1,
-      author: 'John Doe',
-      comment: 'Great product! Really loved it.',
+      author: 'Мария Иванова',
+      comment: 'Страхотен продукт! Помага за успокояване и приятна атмосфера.',
+      rating: 5,
     },
     {
       id: 2,
-      author: 'Jane Smith',
-      comment: 'Good quality, but delivery was a bit late.',
+      author: 'Георги Петров',
+      comment: 'Много съм доволен от качеството, препоръчвам го на всеки!',
+      rating: 5,
+    },
+    {
+      id: 3,
+      author: 'Елена Михайлова',
+      comment: 'Харесва ми, но очаквах по-дълготраен аромат. Все пак работи чудесно.',
+      rating: 4,
+    },
+    {
+      id: 4,
+      author: 'Димитър Стоянов',
+      comment: 'Уникален дизайн и лесен за употреба. Купих го като подарък и беше много добре приет.',
+      rating: 5,
+    },
+    {
+      id: 5,
+      author: 'Анна Георгиева',
+      comment: 'Работи тихо и ароматът е приятен, но доставката отне малко повече време.',
+      rating: 4,
     },
   ]);
 
@@ -48,7 +74,7 @@ function ProductDetail() {
             <img src={product.imageUrl} alt={product.name} className="product-image mb-4" />
             <video className="product-video" controls>
               <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4" />
-              Your browser does not support the video tag.
+              Вашият браузър не поддържа видео формата.
             </video>
           </div>
         </Col>
@@ -78,7 +104,9 @@ function ProductDetail() {
             ) : (
               reviews.map((review) => (
                 <div className="review" key={review.id}>
-                  <strong>{review.author}</strong> <span className="review-rating">★★★★★</span>
+                  <strong>{review.author}</strong> <span className="review-rating">
+                    {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+                  </span>
                   <p>{review.comment}</p>
                 </div>
               ))

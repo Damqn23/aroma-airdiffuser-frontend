@@ -38,7 +38,8 @@ function Cart() {
   const totalPrice = cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
 
   const proceedToCheckout = () => {
-    navigate('/checkout'); // Redirect to the internal checkout route
+    localStorage.setItem('cartItems', JSON.stringify(cartItems)); // Save cart items for use in Checkout
+    navigate('/checkout');
   };
 
   return (

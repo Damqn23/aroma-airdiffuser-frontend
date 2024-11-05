@@ -1,46 +1,51 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const sgMail = require('@sendgrid/mail');
-
-// Load environment variables from .env file
 dotenv.config();
+
+const sgMail = require('@sendgrid/mail');
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// POST endpoint to submit an order
+// POST endpoint to create a Payment Intent
+app.post('/api/create-payment-intent', async (req, res) => {
+  const { totalAmount } = req.body;
+
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(totalAmount * 100), // Stripe expects amount in cents
+      currency: 'bgn',
+      payment_method_types: ['card'],
+    });
+
+    res.send({ clientSecret: paymentIntent.client_secret });
+  } catch (error) {
+    console.error("Error creating payment intent:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// POST endpoint to submit an order and send notification email
 app.post('/api/submit-order', async (req, res) => {
-  // Destructure order details from the request body
   const { name, email, phone, econt, paymentMethod, totalAmount } = req.body;
 
-  // Validate input data
   if (!name || !email || !phone || !econt || !paymentMethod || !totalAmount) {
     return res.status(400).send({
       message: 'All order details must be provided',
     });
   }
 
-  // Define delivery cost and calculate the final amount
-  const deliveryCost = 5;
-  const finalAmount = parseFloat(totalAmount) + deliveryCost;
+  // Only add the delivery cost if it's NOT already included from the frontend
+  const finalAmount = paymentMethod === 'cashOnDelivery' ? parseFloat(totalAmount) : parseFloat(totalAmount);
 
-  // Log the received order details
-  console.log(`Received order:
-    Name: ${name}
-    Email: ${email}
-    Phone: ${phone}
-    Delivery Location: ${econt}
-    Payment Method: ${paymentMethod === 'card' ? 'Paid by card' : 'Cash on delivery'}
-    Total Amount (incl. delivery): ${finalAmount.toFixed(2)} BGN
-  `);
-
-  // Prepare email content for the order notification
   const msg = {
-    to: process.env.ORDER_NOTIFICATION_EMAIL, // Recipient email address from .env
-    from: 'damandimov225@gmail.com', // Verified sender email
+    to: process.env.ORDER_NOTIFICATION_EMAIL,
+    from: 'damandimov225@gmail.com',
     subject: 'New Order Confirmation',
     text: `A new order has been placed:
       Name: ${name}
@@ -53,11 +58,9 @@ app.post('/api/submit-order', async (req, res) => {
   };
 
   try {
-    // Attempt to send the email
     await sgMail.send(msg);
     console.log('Email sent successfully');
 
-    // Send a response back to the client
     res.status(200).send({
       message: 'Order submitted and email sent successfully',
       orderDetails: {

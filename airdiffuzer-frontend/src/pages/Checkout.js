@@ -1,23 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Container, Row, Col, Form, Button } from 'react-bootstrap';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { useNavigate } from 'react-router-dom';
+import './Checkout.css';
+
+const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
 
 function Checkout() {
   const navigate = useNavigate();
+  const stripe = useStripe();
+  const elements = useElements();
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     econt: '',
     paymentMethod: 'cashOnDelivery',
+    cardholderName: '',  // New field for cardholder's name
   });
+  const [cartItems, setCartItems] = useState([]);
+  const [clientSecret, setClientSecret] = useState('');
 
-  const productPrice = 39.99;
-  const deliveryPrice = 5; // Fixed delivery cost
-  const totalAmount = formData.paymentMethod === 'cashOnDelivery'
-    ? productPrice + deliveryPrice
-    : productPrice;
+  const deliveryPrice = 5;
+
+  useEffect(() => {
+    const storedCartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
+    setCartItems(storedCartItems);
+  }, []);
+
+  const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0) +
+    (formData.paymentMethod === 'cashOnDelivery' ? deliveryPrice : 0);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -25,15 +40,20 @@ function Checkout() {
       ...prevData,
       [name]: value,
     }));
+
+    if (name === 'paymentMethod' && value === 'card') {
+      axios.post('http://localhost:5000/api/create-payment-intent', { totalAmount })
+        .then((res) => setClientSecret(res.data.clientSecret))
+        .catch((error) => console.error('Error creating payment intent:', error));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       await axios.post('http://localhost:5000/api/submit-order', {
         ...formData,
-        totalAmount: productPrice, // Pass only the product price here; backend will add the delivery cost
+        totalAmount,
       });
       alert('Order placed successfully! You will receive an email confirmation shortly.');
       navigate('/order-confirmation');
@@ -43,10 +63,41 @@ function Checkout() {
     }
   };
 
+  const handleCardPayment = async (e) => {
+    e.preventDefault();
+
+    if (!stripe || !elements || !clientSecret) return;
+
+    const result = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: elements.getElement(CardElement),
+        billing_details: { name: formData.cardholderName },
+      },
+    });
+
+    if (result.error) {
+      console.error(result.error.message);
+    } else if (result.paymentIntent.status === 'succeeded') {
+      await axios.post('http://localhost:5000/api/submit-order', {
+        ...formData,
+        totalAmount,
+      });
+      alert('Payment successful! Order placed.');
+      navigate('/order-confirmation');
+    }
+  };
+
   return (
     <Container className="mt-5 checkout-container">
       <h2 className="text-center mb-4">Плащане и Доставка</h2>
-      <Form onSubmit={handleSubmit}>
+
+      {cartItems.map((item) => (
+        <div key={item.id}>
+          <p>{item.name} - {item.quantity} x {item.price.toFixed(2)} лв</p>
+        </div>
+      ))}
+
+      <Form onSubmit={formData.paymentMethod === 'card' ? handleCardPayment : handleSubmit}>
         <Row className="mb-3">
           <Col md={6}>
             <Form.Group controlId="formName">
@@ -109,18 +160,21 @@ function Checkout() {
           <h4>Обща сума: {totalAmount.toFixed(2)} лв</h4>
         </div>
 
-        <Form.Group controlId="formPaymentMethod" className="mb-4">
+        <Form.Group controlId="formPaymentMethod" className="mb-4 payment-method-section">
           <Form.Label>Метод на плащане</Form.Label>
-          <div>
-            <Form.Check
-              type="radio"
-              label="Плащане с карта"
-              name="paymentMethod"
-              value="card"
-              checked={formData.paymentMethod === 'card'}
-              onChange={handleInputChange}
-              inline
-            />
+          <div className="payment-method">
+            <div className="payment-option card-payment-option">
+              <Form.Check
+                type="radio"
+                label="Плащане с карта"
+                name="paymentMethod"
+                value="card"
+                checked={formData.paymentMethod === 'card'}
+                onChange={handleInputChange}
+                inline
+              />
+              <span className="free-delivery-highlight">Безплатна доставка при плащане с карта</span>
+            </div>
             <Form.Check
               type="radio"
               label="Плащане при доставка (с наложен платеж)"
@@ -133,7 +187,26 @@ function Checkout() {
           </div>
         </Form.Group>
 
-        <Button variant="primary" type="submit">
+        {formData.paymentMethod === 'card' && (
+          <div className="card-details-section">
+            <Form.Group controlId="formCardholderName">
+              <Form.Label>Име на картодържателя</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Въведете името на картодържателя"
+                name="cardholderName"
+                value={formData.cardholderName}
+                onChange={handleInputChange}
+                required
+              />
+            </Form.Group>
+            <div className="card-element">
+              <CardElement />
+            </div>
+          </div>
+        )}
+
+        <Button variant="primary" type="submit" className="mt-3">
           Потвърдете поръчката
         </Button>
       </Form>
@@ -141,4 +214,8 @@ function Checkout() {
   );
 }
 
-export default Checkout;
+export default () => (
+  <Elements stripe={stripePromise}>
+    <Checkout />
+  </Elements>
+);

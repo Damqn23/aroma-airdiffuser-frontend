@@ -214,8 +214,12 @@ function Checkout() {
   );
 }
 
-export default () => (
-  <Elements stripe={stripePromise}>
-    <Checkout />
-  </Elements>
-);
+function WrappedCheckout() {
+  return (
+    <Elements stripe={stripePromise}>
+      <Checkout />
+    </Elements>
+  );
+}
+
+export default WrappedCheckout;

@@ -8,6 +8,10 @@ import './Checkout.css';
 
 const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLISHABLE_KEY);
 
+const apiBaseUrl = process.env.NODE_ENV === 'production'
+  ? 'https://your-deployed-backend.com' // Replace with your actual backend URL
+  : 'http://localhost:5000';
+
 function Checkout() {
   const navigate = useNavigate();
   const stripe = useStripe();
@@ -34,24 +38,27 @@ function Checkout() {
   const totalAmount = cartItems.reduce((total, item) => total + item.price * item.quantity, 0) +
     (formData.paymentMethod === 'cashOnDelivery' ? deliveryPrice : 0);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-
-    if (name === 'paymentMethod' && value === 'card') {
-      axios.post('http://localhost:5000/api/create-payment-intent', { totalAmount })
-        .then((res) => setClientSecret(res.data.clientSecret))
-        .catch((error) => console.error('Error creating payment intent:', error));
-    }
-  };
+    const handleInputChange = (e) => {
+      const { name, value } = e.target;
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    
+      if (name === 'paymentMethod' && value === 'card') {
+        axios.post(`${apiBaseUrl}/api/create-payment-intent`, {
+          totalAmount,
+          paymentMethod: value, // Pass the payment method
+        })
+          .then((res) => setClientSecret(res.data.clientSecret))
+          .catch((error) => console.error('Error creating payment intent:', error));
+      }
+    };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/submit-order', {
+      await axios.post(`${apiBaseUrl}/api/submit-order`, {
         ...formData,
         totalAmount,
       });
@@ -79,15 +86,20 @@ function Checkout() {
     });
 
     if (result.error) {
-      console.error(result.error.message);
-    } else if (result.paymentIntent.status === 'succeeded') {
-      await axios.post('http://localhost:5000/api/submit-order', {
+      console.error("Payment error:", result.error.message);
+      alert(result.error.message); // Display error message to the user
+    } else if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+      await axios.post(`${apiBaseUrl}/api/submit-order`, {
         ...formData,
         totalAmount,
       });
       alert('Payment successful! Order placed.');
       navigate('/order-confirmation');
     }
+  };
+
+  const cardElementOptions = {
+    hidePostalCode: true,
   };
 
   return (
@@ -204,7 +216,7 @@ function Checkout() {
               />
             </Form.Group>
             <div className="card-element">
-              <CardElement />
+              <CardElement options={cardElementOptions} />
             </div>
           </div>
         )}

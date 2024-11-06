@@ -14,11 +14,14 @@ app.use(express.json());
 
 // POST endpoint to create a Payment Intent
 app.post('/api/create-payment-intent', async (req, res) => {
-  const { totalAmount } = req.body;
+  const { totalAmount, paymentMethod } = req.body;
+
+  // If payment is by card, set the amount without delivery fee (39.99 BGN)
+  const adjustedAmount = paymentMethod === 'card' ? 39.99 : totalAmount;
 
   try {
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(totalAmount * 100), // Stripe expects amount in cents
+      amount: Math.round(adjustedAmount * 100), // Stripe expects amount in cents
       currency: 'bgn',
       payment_method_types: ['card'],
     });
@@ -40,7 +43,8 @@ app.post('/api/submit-order', async (req, res) => {
     });
   }
 
-  const finalAmount = paymentMethod === 'cashOnDelivery' ? parseFloat(totalAmount) : parseFloat(totalAmount);
+  // Adjust the amount based on payment method
+  const finalAmount = paymentMethod === 'card' ? 39.99 : parseFloat(totalAmount);
 
   const msg = {
     to: process.env.ORDER_NOTIFICATION_EMAIL,

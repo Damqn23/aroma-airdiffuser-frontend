@@ -7,6 +7,13 @@
   margin: 0 auto;
 }
 
+h2 {
+  text-align: center;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 30px;
+}
+
 form .form-label {
   font-weight: 600;
   font-size: 1rem;
@@ -17,9 +24,11 @@ button[type="submit"] {
   padding: 12px 30px;
   font-size: 1.2rem;
   background-color: #007bff;
+  color: #fff;
   border: none;
   border-radius: 8px;
   transition: background-color 0.3s ease;
+  width: 100%;
 }
 
 button[type="submit"]:hover {
@@ -38,6 +47,7 @@ button[type="submit"]:hover {
   display: flex;
   align-items: center;
   background-color: #f8f9fa;
+  cursor: pointer;
 }
 
 .card-payment-option {
@@ -53,7 +63,7 @@ button[type="submit"]:hover {
 }
 
 .card-details-section {
-  margin-top: 15px;
+  margin-top: 20px;
   padding: 15px;
   background-color: #f0f2f5;
   border: 1px solid #ced4da;
@@ -74,10 +84,10 @@ button[type="submit"]:hover {
   color: #495057;
 }
 
-.card-element:focus {
-  border-color: #007bff;
+.card-element--focus {
+  border-color: #007bff !important;
   outline: none;
-  box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5);
+  box-shadow: 0px 0px 5px rgba(0, 123, 255, 0.5) !important;
 }
 
 /* General Form Styling */
@@ -89,6 +99,7 @@ button[type="submit"]:hover {
   border: 1px solid #ced4da;
   border-radius: 6px;
   transition: border-color 0.3s ease;
+  margin-bottom: 15px;
 }
 
 .form-control:focus {
@@ -102,6 +113,7 @@ button[type="submit"]:hover {
   font-weight: 600;
   color: #333;
   margin-top: 20px;
+  text-align: center;
 }
 
 @media (max-width: 576px) {

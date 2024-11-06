@@ -40,7 +40,6 @@ app.post('/api/submit-order', async (req, res) => {
     });
   }
 
-  // Only add the delivery cost if it's NOT already included from the frontend
   const finalAmount = paymentMethod === 'cashOnDelivery' ? parseFloat(totalAmount) : parseFloat(totalAmount);
 
   const msg = {

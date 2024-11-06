@@ -19,7 +19,7 @@ function Checkout() {
     phone: '',
     econt: '',
     paymentMethod: 'cashOnDelivery',
-    cardholderName: '',  // New field for cardholder's name
+    cardholderName: '',
   });
   const [cartItems, setCartItems] = useState([]);
   const [clientSecret, setClientSecret] = useState('');
@@ -66,7 +66,10 @@ function Checkout() {
   const handleCardPayment = async (e) => {
     e.preventDefault();
 
-    if (!stripe || !elements || !clientSecret) return;
+    if (!stripe || !elements || !clientSecret) {
+      console.error("Stripe or elements not loaded");
+      return;
+    }
 
     const result = await stripe.confirmCardPayment(clientSecret, {
       payment_method: {
@@ -187,7 +190,7 @@ function Checkout() {
           </div>
         </Form.Group>
 
-        {formData.paymentMethod === 'card' && (
+        {formData.paymentMethod === 'card' && stripe && elements && (
           <div className="card-details-section">
             <Form.Group controlId="formCardholderName">
               <Form.Label>Име на картодържателя</Form.Label>
